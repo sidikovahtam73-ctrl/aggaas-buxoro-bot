@@ -2,21 +2,11 @@ import telebot, re, os, time, glob
 from telebot import types
 from collections import defaultdict, deque
 
-# === TOKENNI SHU ERGA YOZING ===
-TOKEN = "PASTE_YOUR_BOT_TOKEN_HERE"
-# Masalan: TOKEN = "1234567890:AAHxyz..."
-
-# Agar Render da BOT_TOKEN yozilgan bo'lsa, o'shani ishlatadi
-if os.environ.get("BOT_TOKEN"):
-    TOKEN = os.environ.get("BOT_TOKEN")
-if os.environ.get("TELEGRAM_BOT_TOKEN"):
-    TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
-
+TOKEN = os.environ.get("BOT_TOKEN") or os.environ.get("TELEGRAM_BOT_TOKEN") or "8980986366:AAGjew-L_kVH_BJH5UdLJVYr5W8fGGlKCVc"
 if not TOKEN or "PASTE_YOUR" in TOKEN:
-    raise ValueError("BOT_TOKEN topilmadi! TOKEN o'zgaruvchisiga BotFather dan olingan tokenni yozing!")
-
+    TOKEN = "8980986366:AAGjew-L_kVH_BJH5UdLJVYr5W8fGGlKCVc"
 bot = telebot.TeleBot(TOKEN)
-ADMIN_ID = 123456789
+ADMIN_ID = 123456789  # <-- @userinfobot dan o'z ID ni oling va yozing!
 
 last_req = {}
 user_times = defaultdict(lambda: deque())
@@ -53,23 +43,26 @@ TARIF_MAT = {
 TARIF_ISH = 150000
 TARIF_CUSTOM = 300000
 
-TARIF_MATN = """💰 Material bilan (kelishuvchan):
-• Darvoza - 500.000
-• Kalitka - 450.000
-• Panjara - 400.000
-• Naves - 350.000
-• Kozyrek - 350.000
-• Perila - 450.000
-• Balkon - 400.000
-• Besedka - 500.000
-• Stellaj - 200.000
-• Topchan - 200.000
-• Stol - 200.000
-• Zinapoya - 250.000/qadam
-• Boshqa temir buyum - 300.000
+# SODDA NARXLAR MATNI
+TARIF_MATN = """💰 Narxlar (material bilan birga):
 
-💪 Faqat ish haqi: 150.000 dan
-📐 Yozing: 3x4 darvoza yoki 2x1 mangal"""
+• Darvoza - 500 mingdan
+• Kalitka - 450 mingdan  
+• Panjara - 400 mingdan
+• Naves - 350 mingdan
+• Kozyrek - 350 mingdan
+• Perila - 450 mingdan
+• Balkon - 400 mingdan
+• Besedka - 500 mingdan
+• Stellaj - 200 mingdan
+• Topchan - 200 mingdan
+• Stol - 200 mingdan
+• Zinapoya - 250 mingdan 1 qadam
+
+Mangal, krovat, eshik, skameyka, javon - 300 mingdan boshlab
+
+📏 O'lchamni yozing: Masalan 3x4 darvoza
+👨‍🔧 Usta bepul borib o'lchaydi!"""
 
 TEMIR_KALITLAR = [
     "mangal","barbekyu","kamin","kazan","tandir","ochoq",
@@ -153,7 +146,7 @@ def parse_qadam(txt):
 def anti_group(m):
     try:
         if m.chat.type!='private':
-            bot.send_message(m.chat.id,"❌ AggaaS faqat shaxsiy chatda ishlaydi!",protect_content=True)
+            bot.send_message(m.chat.id,"❌ Bu bot faqat shaxsiy chatda ishlaydi!",protect_content=True)
             bot.leave_chat(m.chat.id)
     except: pass
 
@@ -168,12 +161,12 @@ def contact_handler(m):
         bot.send_message(m.chat.id,"❌ Forward mumkin emas!",protect_content=True)
         return
     try:
-        bot.send_message(m.chat.id,"✅ Рахмат! Usta tez orada bog'lanadi!\n📞 +998904432580\n📍 Bepul o'lchovga bugun boramiz!",protect_content=True)
+        bot.send_message(m.chat.id,"✅ Rahmat! Usta tez orada siz bilan bog'lanadi!\n📞 +998904432580\n📍 Bugun bepul o'lchovga boramiz!",protect_content=True)
         soz=last_req.get(m.chat.id,"Noma'lum")
         try:
             print(f"🔔 YANGI MIJOZ: {m.contact.first_name} {m.contact.phone_number} {soz}")
             if ADMIN_ID and ADMIN_ID != 123456789:
-                bot.send_message(ADMIN_ID,f"🔔 YANGI MIJOZ!\n👤 {m.contact.first_name}\n📞 +{m.contact.phone_number}\n📝 {soz}\n📍 Buxoro Uglovoy Park")
+                bot.send_message(ADMIN_ID,f"🔔 YANGI MIJOZ!\n👤 {m.contact.first_name}\n📞 +{m.contact.phone_number}\n📝 {soz}\n📍 Buxoro")
                 bot.send_contact(ADMIN_ID,m.contact.phone_number,m.contact.first_name)
         except Exception as e:
             print(e)
@@ -181,82 +174,102 @@ def contact_handler(m):
         print(e)
 
 @bot.message_handler(commands=['start','help'])
-def start(m):
-    kb=types.ReplyKeyboardMarkup(resize_keyboard=True)
-    kb.add("🚪 Darvoza","🚶 Kalitka","🪟 Panjara")
-    kb.add("🏠 Naves","🏖️ Kozyrek","🪜 Perila")
-    kb.add("🏢 Balkon","🏡 Besedka","📚 Stellaj")
-    kb.add("🛏️ Topchan","🪜 Zinapoya","🪑 Stol")
-    kb.add("🔧 Boshqa temir buyum","📸 Bizning ishlar","💰 Narxlar")
-    kb.add(types.KeyboardButton("📞 Raqam qoldirish",request_contact=True))
-    bot.send_message(m.chat.id,"👋 Salom! AggaaS Buxoro - istalgan temir buyum yasaymiz!\n\nQaysi buyum kerak? Tanlang yoki yozing: 3x4 darvoza, 2x1 mangal, 2x1 krovat\n\n📞 +998904432580\n📍 Buxoro Uglovoy Park",reply_markup=kb,protect_content=True)
-
-@bot.message_handler(content_types=['photo'])
-def photo_handler(m):
+def start_cmd(m):
     lim,wait=is_rate_limited(m.chat.id)
     if lim:
         if wait>0:
-            bot.send_message(m.chat.id,f"⏳ {wait} soniya kuting!",protect_content=True)
+            bot.send_message(m.chat.id,f"⏳ {wait} soniya kuting",protect_content=True)
         return
-    kb=types.ReplyKeyboardMarkup(resize_keyboard=True)
-    kb.add(types.KeyboardButton("📞 Raqam qoldirish",request_contact=True))
-    kb.add("🏠 Bosh menyu")
-    bot.send_message(m.chat.id,"✅ Rasm qabul qilindi! Usta ko'rib, narxni aytadi!\n📍 Joy rasmi bo'lsa bepul o'lchovga boramiz!\n📞 Raqam qoldiring!",reply_markup=kb,protect_content=True)
+    if m.chat.type!='private' and m.chat.id!=ADMIN_ID:
+        return
+    markup=types.ReplyKeyboardMarkup(resize_keyboard=True,row_width=2)
+    markup.add("📸 Bizning ishlar","💡 Namunalar")
+    markup.add("📍 Manzil va Telefon","💰 Narxlar")
+    markup.add("Darvoza","Panjara","Naves","Kalitka")
+    markup.add("Perila","Balkon","Kozyrek","Besedka")
+    markup.add("Zinapoya","Topchan","Stol","Stellaj")
+    markup.add("Boshqa buyum ✍️")
 
-@bot.message_handler(func=lambda m: True)
-def all_handler(m):
     try:
-        lim,wait=is_rate_limited(m.chat.id)
-        if lim:
-            if wait>0:
-                bot.send_message(m.chat.id,f"⏳ {wait} soniya kuting!",protect_content=True)
-            return
-        if m.forward_from or m.forward_from_chat:
-            bot.send_message(m.chat.id,"❌ Forward mumkin emas!",protect_content=True)
-            return
-        txt=m.text.lower().strip() if m.text else ""
-        original=m.text.strip() if m.text else ""
+        for logo in ["AggaaS_logo_cutout.png","logo.png"]:
+            if os.path.exists(logo):
+                with open(logo,'rb') as f:
+                    bot.send_photo(m.chat.id,f,protect_content=True)
+                break
+    except: pass
+
+    txt="""Assalomu alaykum! AggaaS ustaxonaga xush kelibsiz! 👋
+
+Biz oilaviy ustaxonamiz. Ismimiz oila a'zolarimiz nomidan - shuning uchun ishni halol qilamiz!
+
+📍 Buxoro, Uglovoy Park
+📞 +998904432580
+🕒 08:00-20:00
+✅ Buxoro bo'yicha bepul o'lchov
+✅ Kafolat beramiz
+
+Nima yasaymiz?
+Darvoza, panjara, naves, mangal, krovat, perila, zinapoya, topchan va boshqa barcha temir ishlar!
+
+👇 Pastdagi tugmani bosing yoki o'lchamni yozing: Masalan 3x4 darvoza"""
+    bot.send_message(m.chat.id,txt,reply_markup=markup,protect_content=True)
+
+@bot.message_handler(func=lambda m: True, content_types=['text'])
+def all_msg(m):
+    lim,wait=is_rate_limited(m.chat.id)
+    if lim:
+        if wait>0:
+            bot.send_message(m.chat.id,f"⏳ Juda ko'p yozdingiz! {wait} soniya kuting!",protect_content=True)
+        return
+    if m.forward_from or m.forward_from_chat:
+        bot.send_message(m.chat.id,"❌ Forward qilib bo'lmaydi!",protect_content=True)
+        return
+    if m.chat.type!='private' and m.chat.id!=ADMIN_ID:
+        return
+    if len(m.text)>500:
+        bot.send_message(m.chat.id,"❌ Juda uzun yozdingiz! Qisqaroq yozing!",protect_content=True)
+        return
+    try:
+        original=m.text.strip()
+        txt=original.lower()
         last_req[m.chat.id]=original
 
-        if txt in ["salom","assalom","hello","hi","/start"]:
-            start(m)
-            return
-        if txt in ["bosh menyu","🏠 bosh menyu","menu","/help"]:
-            start(m)
-            return
-        if txt in ["narx","narxlar","💰 narxlar","price"]:
+        if "manzil" in txt or "📍" in txt or "adres" in txt or "qayer" in txt:
             kb=types.ReplyKeyboardMarkup(resize_keyboard=True)
             kb.add(types.KeyboardButton("📞 Raqam qoldirish",request_contact=True))
-            kb.add("🏠 Bosh menyu")
-            bot.send_message(m.chat.id,TARIF_MATN,reply_markup=kb,protect_content=True)
-            return
-        if "bizning ish" in txt or "ishlar" in txt or txt=="📸 bizning ishlar":
-            files=get_files(["*.jpg","*.jpeg","*.png","images/*.jpg","images/*.jpeg"])
-            if not files:
-                kb=types.ReplyKeyboardMarkup(resize_keyboard=True)
-                kb.add("🏠 Bosh menyu")
-                bot.send_message(m.chat.id,"📸 Tez orada rasmlar!",reply_markup=kb,protect_content=True)
-                return
-            send_photos(m.chat.id,files[:5],first_caption="Bizning ishlar!",limit=5)
-            kb=types.ReplyKeyboardMarkup(resize_keyboard=True)
-            kb.add(types.KeyboardButton("📞 Raqam qoldirish",request_contact=True))
-            kb.add("🏠 Bosh menyu")
-            bot.send_message(m.chat.id,f"{len(files)} ta namuna! Tanlang!",reply_markup=kb,protect_content=True)
+            kb.add("📸 Bizning ishlar","💰 Narxlar","🏠 Bosh menyu")
+            bot.send_message(m.chat.id,"📍 Manzil: Buxoro, Uglovoy, Park\n📞 Telefon: +998904432580\n🕒 Ish vaqti: 08:00-20:00\n\n✅ Bepul o'lchov\n✅ Kafolat bor\n✅ Materialni birga tanlaymiz",reply_markup=kb,protect_content=True)
             return
 
-        # Rasm qidirish
-        if any(x in txt for x in ["rasm","foto","surat","ko'rsat","kursat","namuna"]):
+        if "bosh menyu" in txt or "🏠" in txt:
+            start_cmd(m)
+            return
+
+        if "bizning" in txt or "📸" in txt or "namuna" in txt or "💡" in txt:
+            bot.send_message(m.chat.id,"📸 Bizning ishlarimiz! Pastda namunalar:",protect_content=True)
+            files=get_files(["*.jpg","*.png","images/*.jpg","photo/*.jpg"])
+            if files:
+                send_photos(m.chat.id,files[:10],first_caption="AggaaS - Sifatli ishlar!",limit=10)
+            kb=types.ReplyKeyboardMarkup(resize_keyboard=True)
+            kb.add(types.KeyboardButton("📞 Raqam qoldirish",request_contact=True))
+            kb.add("💰 Narxlar","🏠 Bosh menyu")
+            bot.send_message(m.chat.id,"Yoqqan ish bo'lsa raqamingizni qoldiring! Usta bepul borib ko'radi!",reply_markup=kb,protect_content=True)
+            return
+
+        if "narx" in txt or "qancha" in txt or "necha pul" in txt or "💰" in txt or "pul" in txt:
+            kb=types.ReplyKeyboardMarkup(resize_keyboard=True)
+            kb.add(types.KeyboardButton("📞 Raqam qoldirish",request_contact=True))
+            kb.add("🏠 Bosh menyu")
             serv=find_service(txt)
-            if serv:
-                patterns=[f"*{serv.lower()}*.jpg", f"*{serv.lower()}*.jpeg", f"images/*{serv.lower()}*.jpg"]
-                files=get_files(patterns)
-                if files:
-                    send_photos(m.chat.id,files,first_caption=f"{serv} namunalari!",limit=10)
-                    kb=types.ReplyKeyboardMarkup(resize_keyboard=True)
-                    kb.add(types.KeyboardButton("📞 Raqam qoldirish",request_contact=True))
-                    kb.add("🏠 Bosh menyu")
-                    bot.send_message(m.chat.id,f"{len(files)} ta {serv} namuna! Tanlang!",reply_markup=kb,protect_content=True)
-                    return
+            size=parse_size(txt)
+            if serv and size:
+                a,b,area=size
+                narx=TARIF_MAT.get(serv,TARIF_CUSTOM)
+                jami=int(area*narx)
+                bot.send_message(m.chat.id,f"{serv} {a} x {b} = {area:.1f} kvadrat\n\nTaxminiy narx material bilan: {jami:,} so'm atrofida\n\nBu taxminiy! Usta joyiga borib aniq narxni aytadi. Bepul!",reply_markup=kb,protect_content=True)
+            else:
+                bot.send_message(m.chat.id,TARIF_MATN,reply_markup=kb,protect_content=True)
+            return
 
         serv=find_service(txt)
         size=parse_size(txt)
@@ -266,18 +279,19 @@ def all_handler(m):
         if serv=="Zinapoya" or (qadam and "zina" in txt):
             steps=qadam if qadam else 1
             if steps>100:
-                bot.send_message(m.chat.id,"❌ 100 dan kam yozing!",protect_content=True)
+                bot.send_message(m.chat.id,"❌ Juda ko'p! 100 dan kam yozing!",protect_content=True)
                 return
             kb=types.ReplyKeyboardMarkup(resize_keyboard=True)
             kb.add(types.KeyboardButton("📞 Raqam qoldirish",request_contact=True))
             kb.add("🏠 Bosh menyu")
-            bot.send_message(m.chat.id,f"✅ Zinapoya\n📐 {steps} qadam\n💰 Material bilan: 250.000/qadam\n💵 Taxminiy: {steps*250000:,}\n❗ Taxminiy, aniq joyida, 3D bilan! Raqam + joy rasmi qoldiring! Bepul!",parse_mode="Markdown",reply_markup=kb,protect_content=True)
+            jami=steps*250000
+            bot.send_message(m.chat.id,f"Zinapoya {steps} qadam\n\nTaxminiy narx material bilan: {jami:,} so'm\n\nUsta bepul borib aniq o'lchaydi! Raqam qoldiring!",reply_markup=kb,protect_content=True)
             return
 
         if size:
             a,b,area=size
             if a>50 or b>50:
-                bot.send_message(m.chat.id,"❌ 50m dan kichik yozing!",protect_content=True)
+                bot.send_message(m.chat.id,"❌ Juda katta! 50 metrdan kichik yozing!",protect_content=True)
                 return
             kb=types.ReplyKeyboardMarkup(resize_keyboard=True)
             kb.add(types.KeyboardButton("📞 Raqam qoldirish",request_contact=True))
@@ -285,44 +299,39 @@ def all_handler(m):
             if serv:
                 narx=TARIF_MAT.get(serv,TARIF_CUSTOM)
                 jami=int(area*narx)
-                bot.send_message(m.chat.id,f"✅ {serv}\n📐 {a} x {b} = {area:.2f} m²\n💰 Material bilan: {narx:,}/m²\n💵 Taxminiy: {jami:,}\nIsh haqi: {int(area*TARIF_ISH):,}\n❗ Taxminiy! Aniq joyida o'lchab, 3D bilan! Joy rasmi + raqam, bepul boramiz!",parse_mode="Markdown",reply_markup=kb,protect_content=True)
+                bot.send_message(m.chat.id,f"{serv} {a} x {b} = {area:.1f} kvadrat\n\nTaxminiy narx: {jami:,} so'm (material bilan)\n\nBu taxminiy narx. Usta borib aniq aytadi! Bepul o'lchov!",reply_markup=kb,protect_content=True)
                 return
             else:
                 jami=int(area*TARIF_CUSTOM)
-                if len(original)>=3 and original.lower() not in ["3x4","2x3","salom"]:
-                    bot.send_message(m.chat.id,f"✅ {original} ni ham yasaymiz!\n📐 {a} x {b} = {area:.2f} m²\n💰 Taxminiy: {jami:,} (material bilan)\nIsh haqi: {int(area*TARIF_ISH):,}\n❗ Taxminiy, aniq joyida! Joy rasmi + raqam, bepul!",parse_mode="Markdown",reply_markup=kb,protect_content=True)
-                else:
-                    bot.send_message(m.chat.id,f"📐 {a} x {b} = {area:.2f} m²\nNaves {int(area*350000):,}, Panjara {int(area*400000):,}, Darvoza {int(area*500000):,}, Boshqa {jami:,}\nQaysi buyum? {a}x{b} darvoza yoki {a}x{b} mangal deb yozing! Aniq joyida!",parse_mode="Markdown",reply_markup=kb,protect_content=True)
+                bot.send_message(m.chat.id,f"{a} x {b} = {area:.1f} kvadrat\n\nTaxminiy narx: {jami:,} so'm atrofida\nQaysi buyum ekanini yozing: masalan {a}x{b} darvoza\n\nUsta bepul boradi!",reply_markup=kb,protect_content=True)
                 return
 
         if serv:
-            narx=TARIF_MAT.get(serv,TARIF_CUSTOM)
-            bir="qadamdan" if serv=="Zinapoya" else "m² dan"
             kb=types.ReplyKeyboardMarkup(resize_keyboard=True)
             kb.add(types.KeyboardButton("📞 Raqam qoldirish",request_contact=True))
             kb.add("🏠 Bosh menyu")
-            bot.send_message(m.chat.id,f"✅ {serv}\n💰 Material bilan {narx:,}/{bir}\nIsh haqi {TARIF_ISH:,}/{bir}\nO'lcham yozing: 3x4 {serv.lower()}\n❗ Aniq joyida!",parse_mode="Markdown",reply_markup=kb,protect_content=True)
+            bot.send_message(m.chat.id,f"{serv} yasaymiz! 👍\n\nO'lchamini yozing: masalan 3x4 {serv.lower()}\n\nBepul o'lchovga boramiz!",reply_markup=kb,protect_content=True)
             return
 
         if "boshqa" in txt:
             kb=types.ReplyKeyboardMarkup(resize_keyboard=True)
             kb.add(types.KeyboardButton("📞 Raqam qoldirish",request_contact=True))
             kb.add("🏠 Bosh menyu")
-            bot.send_message(m.chat.id,f"✍️ Istalgan temir buyum!\nYozing: mangal, 2x1 temir eshik, 1.5x2 krovat, javon 2x1, skameyka\n💰 300.000/m² dan, ish haqi 150.000 dan\n✅ Hammasini yasaymiz! Bepul o'lchov!",parse_mode="Markdown",reply_markup=kb,protect_content=True)
+            bot.send_message(m.chat.id,"Istalgan temir buyum yasaymiz! 💪\n\nMangal, krovat, eshik, reshotka, skameyka, javon, stol - hammasini!\n\nNima kerakligini yozing: masalan 2x1 mangal\nBepul borib ko'ramiz!",reply_markup=kb,protect_content=True)
             return
 
-        if custom and len(txt)>=2 and txt not in ["salom","assalom","hello","hi","rahmat","ok"]:
+        if custom and len(txt)>=2 and txt not in ["salom","assalom","hello","hi","rahmat","ok","/start"]:
             kb=types.ReplyKeyboardMarkup(resize_keyboard=True)
             kb.add(types.KeyboardButton("📞 Raqam qoldirish",request_contact=True))
             kb.add("💰 Narxlar","🏠 Bosh menyu")
-            bot.send_message(m.chat.id,f"✅ {original} ni ham yasaymiz! 💪\nAggaaS - istalgan temir buyum: Darvoza, Panjara, Naves, Mangal, Kamin, Krovat, Eshik, Reshotka, Skameyka, Javon, Stol, Stellaj\n💰 Material bilan {TARIF_CUSTOM:,} dan\n💪 Ish haqi {TARIF_ISH:,} dan\n📐 O'lcham: 2x1 {original}\n❗ Taxminiy, aniq joyida 3D bilan! Joy rasmi + raqam qoldiring!",parse_mode="Markdown",reply_markup=kb,protect_content=True)
+            bot.send_message(m.chat.id,f"{original} ni yasaymiz! Ha, bo'ladi! 👍\n\nO'lchamini yozing: 2x1 {original}\n\nRaqam qoldirsangiz usta bepul borib ko'radi!",reply_markup=kb,protect_content=True)
             return
 
         if len(txt)>=2:
             kb=types.ReplyKeyboardMarkup(resize_keyboard=True)
             kb.add(types.KeyboardButton("📞 Raqam qoldirish",request_contact=True))
             kb.add("💰 Narxlar","🏠 Bosh menyu")
-            bot.send_message(m.chat.id,f"✅ {original} ni ham yasaymiz!\nBiz istalgan temir buyumni yasaymiz!\n📐 O'lcham: 3x4 naves yoki 2x1 mangal\n✅ Bepul o'lchov Buxoro, kafolat!",parse_mode="Markdown",reply_markup=kb,protect_content=True)
+            bot.send_message(m.chat.id,f"{original} ni yasaymiz! 👍\n\nO'lchamini yozing yoki raqam qoldiring! Bepul boramiz!",reply_markup=kb,protect_content=True)
             return
 
     except Exception as e:
@@ -330,10 +339,10 @@ def all_handler(m):
         try:
             kb=types.ReplyKeyboardMarkup(resize_keyboard=True)
             kb.add(types.KeyboardButton("📞 Raqam qoldirish",request_contact=True))
-            bot.send_message(m.chat.id,f"✅ {m.text} ni ham yasaymiz! O'lchamini yozing!",reply_markup=kb,protect_content=True)
+            bot.send_message(m.chat.id,f"{m.text} ni yasaymiz! O'lchamini yozing!",reply_markup=kb,protect_content=True)
         except: pass
 
-print("✅ Bot ishga tushdi - AggaaS ideal")
+print("✅ Bot ishga tushdi - AggaaS sodda")
 try:
     bot.remove_webhook()
     time.sleep(1)
@@ -346,7 +355,7 @@ from flask import Flask
 app=Flask(__name__)
 @app.route('/')
 def home():
-    return "AggaaS Buxoro - Ideal - Live"
+    return "AggaaS Buxoro - Sodda - Live"
 @app.route('/health')
 def health():
     return "OK"
@@ -357,11 +366,11 @@ def run_bot():
             print("🤖 Bot polling boshlandi...")
             bot.infinity_polling(none_stop=True, timeout=60, long_polling_timeout=60, skip_pending=True, allowed_updates=["message","callback_query"])
         except Exception as e:
-            print(f"⚠️ Bot xato: {e}")
+            print(f"⚠️ Bot xato, qayta: {e}")
             time.sleep(5)
 
 if __name__=="__main__":
     import threading
     threading.Thread(target=run_bot, daemon=True).start()
-    print("✅ IDEAL TOZA - Flask main threadda")
+    print("✅ SODDA - TOZA - Flask")
     app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 10000)))
