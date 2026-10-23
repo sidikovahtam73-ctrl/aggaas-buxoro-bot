@@ -171,11 +171,7 @@ def contact_handler(m):
 
 @bot.message_handler(commands=['start','help'])
 def start_cmd(m):
-  lim,wait=is_rate_limited(m.chat.id)
-  if lim:
-    if wait>0:
-      bot.send_message(m.chat.id,f"⏳ {wait} sek",protect_content=True)
-    return
+  # Bosh menyu har doim ishlashi kerak - rate limit yo'q
   if m.chat.type!='private' and m.chat.id!=ADMIN_ID:
     return
   markup=types.ReplyKeyboardMarkup(resize_keyboard=True,row_width=2)
@@ -244,6 +240,15 @@ Bepul o'lchov Botda hisob
 
 @bot.message_handler(func=lambda m: True, content_types=['text'])
 def all_msg(m):
+  # Bosh menyu har doim ishlashi kerak - rate limit dan oldin tekshiramiz
+  try:
+    txt_low = m.text.lower() if m.text else ""
+    if "bosh menyu" in txt_low or "🏠" in txt_low:
+      if m.chat.type=='private' or m.chat.id==ADMIN_ID:
+        start_cmd(m)
+      return
+  except:
+    pass
   lim,wait=is_rate_limited(m.chat.id)
   if lim:
     if wait>0:
@@ -319,14 +324,18 @@ def all_msg(m):
       return
 
     if "bosh menyu" in txt or "🏠" in txt:
+      # Yuqorida allaqachon tekshirildi, lekin xavfsizlik uchun
       start_cmd(m)
       return
 
     if "bizning" in txt or "📸" in txt:
+      # Bizning ishlar - har doim ishlashi kerak
       bot.send_message(m.chat.id,"📸 Bizning ishlar - AggaaS Buxoro - kafolat!",protect_content=True)
-      files=get_files(["*.jpg","*.png","images/*.jpg","photo/*.jpg","*AggaaS*.jpg"])
+      files=get_files(["*.jpg","*.png","images/*.jpg","photo/*.jpg","*AggaaS*.jpg","AggaaS_logo*.png"])
       if files:
         send_photos(m.chat.id,files[:8],first_caption="AggaaS - Sifatli ishlar!",limit=8)
+      else:
+        bot.send_message(m.chat.id,"📸 Hozircha rasmlar Render serverida yo'q. GitHub ga jpg rasmlarni yuklasangiz, bu yerda chiqadi!\n\nLekin bizda 100+ ishlar bor! Raqam qoldiring, WhatsApp ga tashlaymiz!\n📞 +998904432580",protect_content=True)
       kb=types.ReplyKeyboardMarkup(resize_keyboard=True)
       kb.add(types.KeyboardButton("📞 Raqam qoldirish",request_contact=True))
       kb.add("💰 Narxlar","🏠 Bosh menyu")
@@ -334,10 +343,12 @@ def all_msg(m):
       return
 
     if "namuna" in txt or "💡" in txt:
-      bot.send_message(m.chat.id,"💡 Namunalar - chiroyli g'oyalar!",protect_content=True)
+      bot.send_message(m.chat.id,"💡 Namunalar - chiroyli g'oyalar! Buxoro uchun eng chiroyli dizaynlar!",protect_content=True)
       files=get_files(["*namuna*.jpg","*naves*.jpg","*darvoza*.jpg","*.jpg"])
       if files:
         send_photos(m.chat.id,files[:8],limit=8)
+      else:
+        bot.send_message(m.chat.id,"💡 Hozircha namunalar Render da yo'q. Lekin 50+ chiroyli g'oyalar bor!\nRaqam qoldiring, tanlab beramiz!",protect_content=True)
       kb=types.ReplyKeyboardMarkup(resize_keyboard=True)
       kb.add(types.KeyboardButton("📞 Raqam qoldirish",request_contact=True))
       kb.add("🏠 Bosh menyu")
