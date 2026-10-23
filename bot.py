@@ -412,9 +412,25 @@ from flask import Flask
 app=Flask(__name__)
 @app.route('/')
 def home():
-    return "AggaaS Buxoro - Ideal - Oila nomidan sifat - ID 8979707235"
+    return "AggaaS Buxoro - Ideal - Live - ID 8979707235"
+
+@app.route('/health')
+def health():
+    return "OK"
+
+def run_bot():
+    while True:
+        try:
+            print("🤖 Bot polling boshlandi...")
+            bot.infinity_polling(none_stop=True, timeout=60, long_polling_timeout=60)
+        except Exception as e:
+            print(f"⚠️ Bot xato, qayta ishga tushmoqda: {e}")
+            import time
+            time.sleep(5)
+
 if __name__=="__main__":
     import threading
-    threading.Thread(target=lambda: app.run(host='0.0.0.0',port=int(os.environ.get("PORT",10000)))).start()
-    print("✅ IDEAL TOZA - BIZNES REJA")
-    bot.infinity_polling(none_stop=True,timeout=60,long_polling_timeout=60)
+    threading.Thread(target=run_bot, daemon=True).start()
+    print("✅ IDEAL TOZA - BIZNES REJA - Flask main threadda")
+    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 10000)))
+
