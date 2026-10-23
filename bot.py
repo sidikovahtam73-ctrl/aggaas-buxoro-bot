@@ -13,10 +13,10 @@ user_times = defaultdict(lambda: deque())
 user_last_msg = {}
 blocked_until = {}
 
-RATE_LIMIT_SEC = 1.5
-FLOOD_LIMIT = 5
+RATE_LIMIT_SEC = 0.3
+FLOOD_LIMIT = 20
 FLOOD_WINDOW = 10
-BLOCK_TIME = 60
+BLOCK_TIME = 10
 
 def is_rate_limited(chat_id):
     now = time.time()
@@ -30,8 +30,7 @@ def is_rate_limited(chat_id):
         blocked_until[chat_id] = now + BLOCK_TIME
         return True, BLOCK_TIME
     last = user_last_msg.get(chat_id, 0)
-    if now - last < RATE_LIMIT_SEC:
-        return True, 0
+    # Juda tez yuborsa ham bloklamaymiz
     user_last_msg[chat_id] = now
     return False, 0
 
