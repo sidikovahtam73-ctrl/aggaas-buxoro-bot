@@ -3,7 +3,7 @@ qoldirish",request_contact=True))
       bot.send_message(m.chat.id,f"{serv} yasaymiz! 👍\nO'lchamini yozing: masalan 3x4 {serv.lower()}\n\nBepul o'lchovga boramiz!",reply_markup=kb,protect_content=True)
       return
 
-    if "boshqa" in txt:
+    if "boshqa" i⁷n txt:
       kb=types.ReplyKeyboardMarkup(resize_keyboard=True)
       kb.add(types.KeyboardButton("📞 Raqam qoldirish",request_contact=True))
       kb.add("🏠 Bosh menyu")
