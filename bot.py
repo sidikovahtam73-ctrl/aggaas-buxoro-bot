@@ -238,15 +238,6 @@ def all_handler(m):
         if "bosh menyu" in txt:
             start_cmd(m)
             return
-
-        if "bizning" in txt:
-            bot.send_message(m.chat.id, "Bizning ishlar - AggaaS Buxoro!", protect_content=True)
-            final = get_files(["*.jpg", "*.png", "*.jpeg", "*.webp"])
-            if final:
-                send_photos(m.chat.id, final, first_caption="AggaaS - Sifatli ishlar!")
-            bot.send_message(m.chat.id, "Yoqgan ish bo'lsa raqamingizni qoldiring!",
-                reply_markup=contact_kb(narx_bilan=True), protect_content=True)
-            return
 if "bizning" in txt:
             bot.send_message(m.chat.id, "Bizning ishlar - AggaaS Buxoro!", protect_content=True)
             final = get_files(["bizning_ish/*.jpg", "bizning_ish/*.png", "bizning_ish/*.jpeg", "bizning_ish/*.webp"])
