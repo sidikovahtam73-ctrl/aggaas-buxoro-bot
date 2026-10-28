@@ -247,7 +247,16 @@ def all_handler(m):
             bot.send_message(m.chat.id, "Yoqgan ish bo'lsa raqamingizni qoldiring!",
                 reply_markup=contact_kb(narx_bilan=True), protect_content=True)
             return
-
+if "bizning" in txt:
+            bot.send_message(m.chat.id, "Bizning ishlar - AggaaS Buxoro!", protect_content=True)
+            final = get_files(["bizning_ish/*.jpg", "bizning_ish/*.png", "bizning_ish/*.jpeg", "bizning_ish/*.webp"])
+            if final:
+                send_photos(m.chat.id, final, first_caption="AggaaS - Bizning ishlar!", limit=10)
+            else:
+                bot.send_message(m.chat.id, "Tez kunda yangi ishlar!", protect_content=True)
+            bot.send_message(m.chat.id, "Yoqgan ish bo'lsa raqamingizni qoldiring!",
+                reply_markup=contact_kb(narx_bilan=True), protect_content=True)
+            return
         if "namuna" in txt:
             bot.send_message(m.chat.id, "Namunalar - chiroyli g'oyalar!", protect_content=True)
             final = get_files(["*.jpg", "*.png", "*.jpeg", "*.webp"])
