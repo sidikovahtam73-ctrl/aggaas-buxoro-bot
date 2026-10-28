@@ -1,1 +1,0 @@
-namunalar-chiroyli goyalar
