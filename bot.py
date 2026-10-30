@@ -75,10 +75,6 @@ def get_files(patterns):
     files = []
     for pat in patterns:
         files.extend(glob.glob(pat))
-    files.extend(glob.glob("*.jpg"))
-    files.extend(glob.glob("*.jpeg"))
-    files.extend(glob.glob("*.png"))
-    files.extend(glob.glob("*.webp"))
     uniq, seen = [], set()
     for f in files:
         if os.path.exists(f) and f not in seen:
